@@ -65,6 +65,27 @@ pub enum PluginError {
         source: serde_json::Error,
     },
 
+    // ── Hot-reload / dispatch errors (fix for issue #897) ─────────────────
+
+    /// No plugin is registered under the requested ID.
+    ///
+    /// Replaces the bare `.unwrap()` at `manager.rs:214` that previously
+    /// caused the panic described in issue #897.
+    #[error("Plugin not found: '{0}'")]
+    NotFound(String),
+
+    /// The session ID passed to `dispatch_chat` (or `get_session`) does not
+    /// correspond to any active session.
+    #[error("Session not found: '{0}'")]
+    SessionNotFound(String),
+
+    /// Sessions for a plugin did not drain within the configured timeout.
+    ///
+    /// The caller should warn and terminate the remaining sessions gracefully
+    /// instead of panicking.
+    #[error("Plugin drain timeout: {0}")]
+    DrainTimeout(String),
+
     /// Catch-all for errors that don't fit the above categories.
     #[error("{0}")]
     Other(String),

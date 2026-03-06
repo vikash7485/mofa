@@ -65,6 +65,9 @@ pub use rag::{
 pub mod workflow;
 pub use workflow::*;
 pub mod llm;
+// Session registry (active agent sessions, hot-reload rebinding)
+pub mod session;
+pub use session::{SessionId, SessionRegistry, SessionSnapshot};
 // Metrics traits for monitoring integration
 pub mod metrics;
 pub use metrics::*;

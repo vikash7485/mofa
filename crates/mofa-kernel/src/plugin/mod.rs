@@ -7,6 +7,9 @@ use tokio::sync::RwLock;
 pub mod error;
 pub use error::{IntoPluginReport, PluginError, PluginReport};
 
+pub mod manager;
+pub use manager::PluginManager;
+
 /// Plugin execution result type using the typed [`PluginError`].
 ///
 /// This is the plain (non-report) alias used by existing plugin trait methods.
@@ -332,6 +335,19 @@ pub enum PluginState {
     /// 错误状态
     /// Error state
     Error(String),
+    /// Plugin is accepting requests normally.
+    ///
+    /// Used by the hot-reload drain protocol (`PluginManager::reload_plugin`).
+    Active,
+    /// Plugin is draining active sessions before a hot-reload.
+    ///
+    /// While in this state `PluginManager::get_plugin` rejects new requests
+    /// so that in-flight calls can complete before the provider is swapped.
+    Draining,
+    /// Plugin instance is being swapped for a new version.
+    ///
+    /// Transitions to `Active` once `restore_sessions` completes.
+    Swapping,
 }
 
 /// 插件优先级（用于确定执行顺序）
